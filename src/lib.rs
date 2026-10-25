@@ -26,13 +26,15 @@ impl std::fmt::Display for JavaInstallation {
     }
 }
 
+/// Find a Java installation that can run a version requiring `version`.
+///
+/// Prefers the closest available major version at or above the requirement
+/// rather than demanding an exact match (Minecraft 1.21 runs on Java 21, 22…).
 pub fn get_java(version: u8) -> Option<JavaInstallation> {
-    for java in detect() {
-        if java.version == version {
-            return Some(java);
-        }
-    }
-    None
+    detect()
+        .into_iter()
+        .filter(|java| java.version >= version)
+        .min_by_key(|java| java.version)
 }
 
 pub fn detect() -> Vec<JavaInstallation> {
